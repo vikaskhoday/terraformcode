@@ -70,55 +70,30 @@ resource "aws_subnet" "private_subnet_1" {
   availability_zone = "us-west-1b" # Replace with your desired AZ
   # map_public_ip_on_launch is false by default for private subnets
 
-Hclprovider "aws" {
-  region = "us-west-1" # Replace with your desired region
-}
-Fetch the VPC details
-data "aws_vpc" "selected" {
-filter {
-name   = "tag:Name"
-values = ["main-vpc"] # Replace with your VPC name
-}
-}
-Fetch the subnets associated with the VPC
-data "aws_subnets" "selected" {
-filter {
-name   = "vpc-id"
-values = [data.aws_vpc.selected.id]
-}
-}
-Fetch only private subnets (optional, based on your use case)
-data "aws_subnet_ids" "private" {
-vpc_id = data.aws_vpc.selected.id
-tags = {
-"kubernetes.io/role/internal-elb" = "1" # Tag used for private subnets
-}
-}
-Create the EKS cluster
 module "eks" {
-source          = "terraform-aws-modules/eks/aws"
-cluster_name    = "my-eks-cluster"
-cluster_version = "1.27" # Replace with your desired Kubernetes version
-subnets         = data.aws_subnets.selected.ids # Dynamically fetched subnets
-vpc_id          = data.aws_vpc.selected.id
-node_groups = {
-eks_nodes = {
-desired_capacity = 2
-max_capacity     = 3
-min_capacity     = 1
-  instance_type = "t3.medium"
-}
+  source  = "terraform-aws-modules/eks/aws"
+  version = "20.0.0" # Use the latest stable version
 
-}
-}
+  cluster_name    = "my-eks-cluster"
+  cluster_version = "1.28" # Specify your desired Kubernetes version
 
+  vpc_id                   = module.vpc.vpc_id
+  subnet_ids               = module.vpc.private_subnets
+  control_plane_subnet_ids = module.vpc.public_subnets # EKS control plane needs public subnets
+
+  # EKS Managed Node Groups
+  eks_managed_node_groups = {
+    my_node_group = {
+      instance_types = ["t3.medium"]
+      min_size       = 2
+      max_size       = 5
+      desired_size   = 3
+      disk_size      = 20
+    }
+  }
 
   tags = {
-    Name = "private-subnet-1"
+    Environment = "Development"
+    Project     = "EKS-Demo"
   }
-}
-
-# Output the IDs of the created subnets
-output "public_subnet_id" {
-  value = aws_subnet.public_subnet_1.id
 }
