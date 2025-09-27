@@ -1,0 +1,41 @@
+# main.tf
+
+# Configure the AWS Provider
+provider "aws" {
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
+
+# Create a VPC
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr_block
+  tags = {
+    Name = "main-vpc"
+  }
+}
+
+# Create an IAM User
+resource "aws_iam_user" "tf_user" {
+  name = var.iam_user_name
+}
+
+# Create an Access Key for the IAM User
+resource "aws_iam_access_key" "tf_user_key" {
+  user = aws_iam_user.tf_user.name
+}
+
+# Output the Access Key ID and Secret Access Key
+output "access_key_id" {
+  value     = aws_iam_access_key.tf_user_key.id
+  sensitive = true # Mark as sensitive to prevent plain-text output in logs
+}
+
+output "secret_access_key" {
+  value     = aws_iam_access_key.tf_user_key.secret
+  sensitive = true # Mark as sensitive to prevent plain-text output in logs
+}
+
+output "vpc_id" {
+  value = aws_vpc.main.id
+}
