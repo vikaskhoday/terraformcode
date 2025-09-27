@@ -69,4 +69,5 @@ resource "aws_subnet" "private_subnet_1" {
   cidr_block        = "10.0.2.0/24" # Replace with your desired CIDR block
   availability_zone = "us-west-1b" # Replace with your desired AZ
   # map_public_ip_on_launch is false by default for private subnets
+}
 
