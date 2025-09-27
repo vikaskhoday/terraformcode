@@ -70,30 +70,3 @@ resource "aws_subnet" "private_subnet_1" {
   availability_zone = "us-west-1b" # Replace with your desired AZ
   # map_public_ip_on_launch is false by default for private subnets
 
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "20.0.0" # Use the latest stable version
-
-  cluster_name    = "my-eks-cluster"
-  cluster_version = "1.28" # Specify your desired Kubernetes version
-
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
-  control_plane_subnet_ids = module.vpc.public_subnets # EKS control plane needs public subnets
-
-  # EKS Managed Node Groups
-  eks_managed_node_groups = {
-    my_node_group = {
-      instance_types = ["t3.medium"]
-      min_size       = 2
-      max_size       = 5
-      desired_size   = 3
-      disk_size      = 20
-    }
-  }
-
-  tags = {
-    Environment = "Development"
-    Project     = "EKS-Demo"
-  }
-}
