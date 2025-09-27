@@ -53,7 +53,7 @@ data "aws_vpc" "main-vpc" {
 
 # Create a public subnet
 resource "aws_subnet" "public_subnet_1" {
-  vpc_id                  = data.aws_vpc.existing_vpc.id
+  vpc_id                  = data.aws_vpc.main_vpc.id
   cidr_block              = "10.0.1.0/24" # Replace with your desired CIDR block
   availability_zone       = "us-west-1a" # Replace with your desired AZ
   map_public_ip_on_launch = true # Set to true for public subnets
@@ -65,7 +65,7 @@ resource "aws_subnet" "public_subnet_1" {
 
 # Create a private subnet
 resource "aws_subnet" "private_subnet_1" {
-  vpc_id            = data.aws_vpc.existing_vpc.id
+  vpc_id            = data.aws_vpc.main_vpc.id
   cidr_block        = "10.0.2.0/24" # Replace with your desired CIDR block
   availability_zone = "us-west-1b" # Replace with your desired AZ
   # map_public_ip_on_launch is false by default for private subnets
