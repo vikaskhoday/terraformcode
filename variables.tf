@@ -25,5 +25,5 @@ variable "vpc_cidr_block" {
 variable "iam_user_name" {
   description = "Name for the IAM user."
   type        = string
-  default     = "terraform-user"
+  default     = "Group1-HU2"
 }
